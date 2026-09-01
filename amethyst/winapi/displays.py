@@ -115,6 +115,21 @@ class DisplayMode:
     def as_tuple(self) -> tuple[int, int, int]:
         return (self.width, self.height, self.refresh)
 
+    def matches(self, other: "DisplayMode | None", tolerance: int = 2) -> bool:
+        """Same mode, allowing for rounded refresh rates.
+
+        Drivers report 59 Hz for a mode that was requested as 60, and 143 for
+        144. Without the tolerance, anything watching the mode would think it
+        was changed and would set it again in a loop.
+        """
+        if other is None:
+            return False
+        if (self.width, self.height) != (other.width, other.height):
+            return False
+        if not self.refresh or not other.refresh:
+            return True
+        return abs(self.refresh - other.refresh) <= tolerance
+
 
 @dataclass
 class Display:

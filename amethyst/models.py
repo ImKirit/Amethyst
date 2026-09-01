@@ -146,6 +146,11 @@ class AppSettings:
     notifications: bool = True
     apply_desktop_on_start: bool = False
     brightness_source: str = "auto"    # auto | gamma | ddcci
+    enforce_resolution: bool = True    # hold the resolution while a game runs
+    overlay_enabled: bool = False
+    overlay_x: int = -1                # -1 means: top left corner of the target display
+    overlay_y: int = -1
+    check_updates: bool = True
     desktop: Profile = field(default_factory=lambda: Profile(
         id="desktop", name="Desktop", icon="🖥️", processes=[]))
 
@@ -158,7 +163,8 @@ class AppSettings:
     def from_dict(data: dict[str, Any]) -> "AppSettings":
         settings = AppSettings()
         for key in ("poll_seconds", "start_minimized", "close_to_tray", "notifications",
-                    "apply_desktop_on_start", "brightness_source"):
+                    "apply_desktop_on_start", "brightness_source", "enforce_resolution",
+                    "overlay_enabled", "overlay_x", "overlay_y", "check_updates"):
             if key in data:
                 setattr(settings, key, data[key])
         settings.poll_seconds = max(0.5, min(30.0, float(settings.poll_seconds)))

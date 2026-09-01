@@ -79,6 +79,10 @@ never survive a reboot.
 
 - **Process triggers.** A profile lists the executables that activate it, for example
   `VALORANT-Win64-Shipping.exe`. Several names per profile are fine.
+- **The resolution stays put.** Games change the display mode themselves when they go full
+  screen, and Windows restores the desktop mode on alt tab. Amethyst checks every 0.7 seconds
+  and puts your profile resolution back, so a stretched profile does not quietly fall back to
+  native halfway through a match.
 - **Automatic switch back.** Close the game and your desktop values return. Turn that off per
   profile when you want the look to stick around.
 - **Fifteen templates.** Valorant, CS2, Fortnite, Apex, Siege, Overwatch 2, Call of Duty,
@@ -99,6 +103,13 @@ never survive a reboot.
   does not, instead of silently doing nothing.
 - **A second path for brightness.** When the gamma ramp is blocked, Amethyst can drive your
   monitor over DDC/CI instead.
+- **A badge that tells you what is applied.** Optional, draggable, always on top: it says
+  whether you are on a stretched or a native mode right now. Exclusive full screen paints over
+  it, so it shows on the desktop and in borderless windowed mode.
+- **Updates itself.** Amethyst checks the releases of this repository on start and can replace
+  its own exe with one click.
+- **The wheel does not touch your settings.** Scrolling over a slider or a dropdown scrolls the
+  page, it never changes the value by accident.
 
 ## Screens
 
@@ -106,8 +117,12 @@ never survive a reboot.
 |---|---|
 | **Display.** Desktop color and resolution, plus what your machine supports. | **Profiles.** List on the left, full editor on the right. |
 | <img src="docs/img/main-display.png" width="420" alt="Display page"> | <img src="docs/img/main-profiles.png" width="420" alt="Profiles page"> |
-| **While gaming.** The active profile is marked and shown in the title bar. | **Settings.** Behaviour, brightness path, diagnostics. |
+| **While gaming.** The active profile is marked and shown in the title bar. | **Settings.** Behaviour, brightness path, badge, updates, diagnostics. |
 | <img src="docs/img/main-active.png" width="420" alt="Active profile"> | <img src="docs/img/main-settings.png" width="420" alt="Settings page"> |
+
+The optional badge, draggable anywhere on your screen:
+
+<img src="docs/img/tour-badge.png" width="260" alt="Resolution badge showing a stretched mode">
 
 ## What works on your machine
 
@@ -145,6 +160,11 @@ Resolutions that are not the native aspect ratio, such as 1440x1080 or 1280x960,
 **stretched** in the dropdown. Custom resolutions you created in the NVIDIA panel show up in
 that list automatically.
 
+Games take the display mode into their own hands: alt tab out of a full screen game, or switch
+between windowed and full screen, and the mode goes back to native. Amethyst notices that
+within a second and sets your profile resolution again. If you ever want the game to have the
+last word, turn off **Hold the resolution while a game runs** in the settings.
+
 ## How data is stored
 
 ```
@@ -175,6 +195,13 @@ python tools/build.py
 The result is `dist/Amethyst.exe`, a single file with no installer and no dependencies on the
 target machine. `python tools/build.py --folder` builds an unpacked folder instead, which
 starts noticeably faster.
+
+### Updates
+
+Amethyst asks the GitHub API for the latest release on start, compares it against its own
+version and offers the update. Installing means: the new exe is downloaded, the running one is
+renamed to `.old`, the new one takes its place and Amethyst restarts. The leftover `.old` file
+is removed on the next start. Turn the check off under Settings, Updates.
 
 ## Development
 

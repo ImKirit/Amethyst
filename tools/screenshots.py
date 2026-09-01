@@ -139,6 +139,16 @@ def main() -> int:
     pump()
     shoot(window, 1, "main-active.png", out)
 
+    # the resolution badge
+    from amethyst.ui.overlay import ResolutionOverlay  # noqa: PLC0415
+
+    badge = ResolutionOverlay(store)
+    badge.show_mode(1440, 1080, True)
+    pump()
+    badge.grab().save(str(out / "tour-badge.png"), "PNG")
+    print("  tour-badge.png")
+    badge.hide()
+
     # icon file for the header of the project page
     app_icon().pixmap(256, 256).save(str(out / "logo.png"), "PNG")
     print("  logo.png  256x256")

@@ -13,9 +13,10 @@ from . import APP_NAME, VERSION
 from .engine import Engine
 from .paths import log_file
 from .store import Store
+from . import updater
 from .ui import theme
 from .ui.tray import Tray
-from .ui.widgets import app_icon
+from .ui.widgets import WheelGuard, app_icon
 from .ui.window import MainWindow
 
 log = logging.getLogger("amethyst")
@@ -52,6 +53,11 @@ def main(argv: list[str] | None = None) -> int:
     app.setQuitOnLastWindowClosed(False)
     app.setStyleSheet(theme.stylesheet())
     app.setWindowIcon(app_icon())
+
+    guard = WheelGuard(app)
+    app.installEventFilter(guard)
+
+    updater.cleanup_old()
 
     store = Store()
     engine = Engine(store)

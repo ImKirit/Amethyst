@@ -84,6 +84,8 @@ class Engine:
         self.active_since: float = 0.0
         self._baselines: dict[str, DisplayBaseline] = {}
         self._changed_resolution: dict[str, tuple[int, int, int]] = {}
+        # what the active profile wants the resolution to be, per display
+        self._wanted_mode: dict[str, displays.DisplayMode] = {}
         self.on_change: Callable[[Profile | None], None] | None = None
         self.last_error: str = ""
         self._recover_from_crash()
@@ -150,7 +152,8 @@ class Engine:
             self.nv.set_vibrance(baseline.vibrance, baseline.device)
         if baseline.mode:
             current = displays.current_mode(baseline.device)
-            if current and current.as_tuple() != baseline.mode:
+            wanted = displays.DisplayMode(*baseline.mode)
+            if current and not wanted.matches(current):
                 width, height, refresh = baseline.mode
                 displays.set_mode(baseline.device, displays.DisplayMode(width, height, refresh))
 
@@ -209,7 +212,8 @@ class Engine:
             rates = display.refresh_rates(resolution.width, resolution.height) if display else []
             refresh = rates[0] if rates else (current.refresh if current else 60)
         mode = displays.DisplayMode(resolution.width, resolution.height, refresh)
-        if current and current.as_tuple() == mode.as_tuple():
+        self._wanted_mode[device] = mode
+        if mode.matches(current):
             return []
         ok, message = displays.set_mode(device, mode)
         if ok:
@@ -250,7 +254,31 @@ class Engine:
         if self.on_change:
             self.on_change(None)
 
+    def enforce_resolution(self) -> str | None:
+        """Put the profile resolution back when something else changed it.
+
+        Games switch the display mode themselves when they go full screen, and
+        Windows restores the desktop mode on alt tab. Without this, a stretched
+        profile silently falls back to native halfway through a match.
+        """
+        if self.active is None or not self.store.settings.enforce_resolution:
+            return None
+        for device, mode in self._wanted_mode.items():
+            current = displays.current_mode(device)
+            if mode.matches(current):
+                continue
+            if current is None:
+                continue
+            ok, message = displays.set_mode(device, mode)
+            if ok:
+                log.info("Display was on %s, put %s back", current.label(), mode.label())
+                return f"{mode.label()} restored"
+            log.warning("Could not restore %s: %s", mode.label(), message)
+            return f"Could not restore {mode.label()}: {message}"
+        return None
+
     def _restore_resolution(self) -> None:
+        self._wanted_mode.clear()
         for device, mode in list(self._changed_resolution.items()):
             if not mode or mode == (0, 0, 0):
                 displays.reset_mode(device)

@@ -4,10 +4,11 @@ from __future__ import annotations
 
 from typing import Callable
 
-from PySide6.QtCore import QPointF, QRectF, QSize, Qt, Signal
+from PySide6.QtCore import QEvent, QObject, QPointF, QRectF, QSize, Qt, Signal
 from PySide6.QtGui import (QBrush, QColor, QFont, QIcon, QLinearGradient, QPainter, QPainterPath,
                            QPen, QPixmap)
-from PySide6.QtWidgets import (QCheckBox, QFrame, QHBoxLayout, QLabel, QPushButton, QSlider,
+from PySide6.QtWidgets import (QAbstractScrollArea, QAbstractSpinBox, QApplication, QCheckBox,
+                               QComboBox, QFrame, QHBoxLayout, QLabel, QPushButton, QSlider,
                                QSizePolicy, QVBoxLayout, QWidget)
 
 from . import theme
@@ -354,3 +355,32 @@ def wordmark_font(size: int = 19) -> QFont:
 def connect_all(widgets: list[SliderRow], handler: Callable[[float], None]) -> None:
     for widget in widgets:
         widget.valueChanged.connect(handler)
+
+class WheelGuard(QObject):
+    """Keeps the mouse wheel from changing sliders and dropdowns.
+
+    Scrolling over a control used to change its value, which is easy to do by
+    accident while reading a page. The event is handed to the surrounding
+    scroll area instead, so the wheel scrolls the page like everywhere else.
+    """
+
+    TARGETS = (QSlider, QComboBox, QAbstractSpinBox)
+
+    def eventFilter(self, obj, event) -> bool:  # noqa: N802 - Qt naming
+        if event.type() != QEvent.Type.Wheel or not isinstance(obj, self.TARGETS):
+            return False
+        if isinstance(obj, QComboBox) and obj.view().isVisible():
+            return False          # the open dropdown list may scroll
+        area = self._scroll_area(obj)
+        if area is not None:
+            QApplication.sendEvent(area.viewport(), event)
+        return True
+
+    @staticmethod
+    def _scroll_area(widget) -> QAbstractScrollArea | None:
+        parent = widget.parentWidget()
+        while parent is not None:
+            if isinstance(parent, QAbstractScrollArea):
+                return parent
+            parent = parent.parentWidget()
+        return None

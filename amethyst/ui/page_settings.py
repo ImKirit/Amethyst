@@ -10,7 +10,7 @@ from PySide6.QtCore import Qt, QUrl, Signal
 from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import QComboBox, QHBoxLayout, QPushButton, QScrollArea, QVBoxLayout, QWidget
 
-from .. import APP_NAME, REPO_URL, VERSION
+from .. import APP_NAME, REPO, REPO_URL, VERSION
 from ..engine import Engine
 from ..paths import data_dir
 from ..winapi import autostart, gamma
@@ -23,6 +23,8 @@ class SettingsPage(QWidget):
 
     statusMessage = Signal(str)
     intervalChanged = Signal(float)
+    checkUpdatesRequested = Signal()
+    overlayChanged = Signal()
 
     def __init__(self, engine: Engine, parent=None) -> None:
         super().__init__(parent)
@@ -56,10 +58,16 @@ class SettingsPage(QWidget):
         self.minimized_toggle = Toggle("Start minimized", settings.start_minimized)
         self.tray_toggle = Toggle("Closing hides to the tray", settings.close_to_tray)
         self.notify_toggle = Toggle("Short notice when a profile switches", settings.notifications)
-        for toggle in (self.minimized_toggle, self.tray_toggle, self.notify_toggle):
+        self.enforce_toggle = Toggle("Hold the resolution while a game runs",
+                                     settings.enforce_resolution)
+        self.enforce_toggle.setToolTip(
+            "Games change the display mode themselves when they switch between full screen "
+            "and windowed. This puts your profile resolution back within a second.")
+        for toggle in (self.minimized_toggle, self.tray_toggle, self.notify_toggle,
+                       self.enforce_toggle):
             toggle.toggled.connect(self._save)
         for toggle in (self.autostart_toggle, self.minimized_toggle,
-                       self.tray_toggle, self.notify_toggle):
+                       self.tray_toggle, self.notify_toggle, self.enforce_toggle):
             behaviour.add(toggle)
 
         self.interval = SliderRow("Check interval", 0.5, 10.0, settings.poll_seconds, 0.5,
@@ -82,6 +90,43 @@ class SettingsPage(QWidget):
         self.source_box.currentIndexChanged.connect(self._save)
         source.add(self.source_box)
         layout.addWidget(source)
+
+        # -- overlay
+        overlay = Card("Resolution badge",
+                       "A small badge that shows which resolution is currently applied. "
+                       "Drag it anywhere on your screen. A game in exclusive full screen "
+                       "paints over it, so it is visible on the desktop and in borderless "
+                       "windowed mode.")
+        self.overlay_toggle = Toggle("Show the badge while a profile is active",
+                                     settings.overlay_enabled)
+        self.overlay_toggle.toggled.connect(self._on_overlay)
+        overlay.add(self.overlay_toggle)
+        reset_row = QHBoxLayout()
+        reset_position = QPushButton("Move back to the top left")
+        reset_position.setObjectName("ghost")
+        reset_position.setCursor(Qt.PointingHandCursor)
+        reset_position.clicked.connect(self._reset_overlay_position)
+        reset_row.addWidget(reset_position)
+        reset_row.addStretch(1)
+        overlay.add_layout(reset_row)
+        layout.addWidget(overlay)
+
+        # -- updates
+        updates = Card("Updates",
+                       f"Amethyst looks at the releases of {REPO} and can replace itself "
+                       "with a newer version. Only works for the packaged exe.")
+        self.update_toggle = Toggle("Check on start", settings.check_updates)
+        self.update_toggle.toggled.connect(self._save)
+        updates.add(self.update_toggle)
+        update_row = QHBoxLayout()
+        check_now = QPushButton("Check now")
+        check_now.setObjectName("ghost")
+        check_now.setCursor(Qt.PointingHandCursor)
+        check_now.clicked.connect(self.checkUpdatesRequested.emit)
+        update_row.addWidget(check_now)
+        update_row.addStretch(1)
+        updates.add_layout(update_row)
+        layout.addWidget(updates)
 
         # -- system
         system = Card("System",
@@ -141,7 +186,22 @@ class SettingsPage(QWidget):
         settings.close_to_tray = self.tray_toggle.isChecked()
         settings.notifications = self.notify_toggle.isChecked()
         settings.brightness_source = self.source_box.currentData() or "auto"
+        settings.enforce_resolution = self.enforce_toggle.isChecked()
+        settings.check_updates = self.update_toggle.isChecked()
         self.store.save_settings()
+
+    def _on_overlay(self, checked: bool) -> None:
+        self.store.settings.overlay_enabled = checked
+        self.store.save_settings()
+        self.overlayChanged.emit()
+
+    def _reset_overlay_position(self) -> None:
+        settings = self.store.settings
+        settings.overlay_x = -1
+        settings.overlay_y = -1
+        self.store.save_settings()
+        self.overlayChanged.emit()
+        self.statusMessage.emit("Badge moved back to the top left")
 
     def _on_interval(self, value: float) -> None:
         self.store.settings.poll_seconds = value

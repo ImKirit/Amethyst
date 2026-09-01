@@ -11,7 +11,9 @@ from ..engine import Engine
 from . import theme
 from .page_display import DisplayPage
 from .page_profiles import ProfilesPage
+from .overlay import ResolutionOverlay
 from .page_settings import SettingsPage
+from .updates import UpdateFlow
 from .widgets import Badge, IconButton, app_icon, divider, label, wordmark_font
 
 
@@ -124,6 +126,21 @@ class MainWindow(QWidget):
         self.watch_timer.timeout.connect(self._tick)
         self._set_interval(self.store.settings.poll_seconds)
 
+        # The resolution is checked more often than the process list: a game
+        # switching to full screen resets it within a moment, and waiting two
+        # seconds for that is very visible.
+        self.overlay = ResolutionOverlay(self.store)
+        self.enforce_timer = QTimer(self)
+        self.enforce_timer.timeout.connect(self._hold_resolution)
+        self.enforce_timer.start(700)
+
+        self.updates = UpdateFlow(self)
+        self.updates.nothing.connect(self.flash)
+        self.settings_page.checkUpdatesRequested.connect(lambda: self.updates.check(quiet=False))
+        self.settings_page.overlayChanged.connect(self._sync_overlay)
+        if self.store.settings.check_updates:
+            QTimer.singleShot(6000, lambda: self.updates.check(quiet=True))
+
     # -- Layout -------------------------------------------------------
     def _build_sidebar(self) -> QWidget:
         sidebar = QWidget()
@@ -183,6 +200,32 @@ class MainWindow(QWidget):
         if (before.id if before else None) != (after.id if after else None):
             self.profiles_page.reload()
 
+    def _hold_resolution(self) -> None:
+        message = self.engine.enforce_resolution()
+        if message:
+            self.flash(message)
+            self._sync_overlay()
+
+    def _sync_overlay(self) -> None:
+        """Show the badge while a profile with a resolution is active."""
+        settings = self.store.settings
+        profile = self.engine.active
+        wanted = profile is not None and profile.resolution.is_set()
+        if not (settings.overlay_enabled and wanted):
+            self.overlay.hide()
+            return
+        from ..winapi import displays          # noqa: PLC0415 - keeps the import local
+
+        device = displays.resolve_device(profile.display)
+        current = displays.current_mode(device) if device else None
+        if current is None:
+            self.overlay.hide()
+            return
+        display = next((d for d in displays.list_displays() if d.device == device), None)
+        native = display.native_aspect() if display else current.aspect
+        stretched = abs(current.aspect - native) > 0.02
+        self.overlay.show_mode(current.width, current.height, stretched)
+
     def _on_active_changed(self, profile) -> None:
         if profile is None:
             self.title_bar.status_badge.set_state("No game detected", theme.TEXT_MUTED)
@@ -195,6 +238,8 @@ class MainWindow(QWidget):
                 self.flash(f"{profile.name} applied")
         if hasattr(self, "profiles_page"):
             self.profiles_page.reload()
+        if hasattr(self, "overlay"):
+            self._sync_overlay()
 
     def _on_profiles_changed(self) -> None:
         self.display_page.update_capabilities()
@@ -215,6 +260,8 @@ class MainWindow(QWidget):
             self.flash("")
             return
         self.watch_timer.stop()
+        self.enforce_timer.stop()
+        self.overlay.hide()
         self.engine.restore_all()
         self.store.save()
         event.accept()
