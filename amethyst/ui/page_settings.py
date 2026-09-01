@@ -33,10 +33,10 @@ class SettingsPage(QWidget):
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
-        outer.setSpacing(12)
+        outer.setSpacing(16)
 
         head = QVBoxLayout()
-        head.setSpacing(2)
+        head.setSpacing(4)
         head.addWidget(label("Settings", "pageTitle"))
         head.addWidget(label("How Amethyst behaves, plus a diagnosis of the interfaces.",
                              "pageHint"))
@@ -47,8 +47,8 @@ class SettingsPage(QWidget):
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         content = QWidget()
         layout = QVBoxLayout(content)
-        layout.setContentsMargins(0, 0, 6, 0)
-        layout.setSpacing(12)
+        layout.setContentsMargins(0, 0, 8, 0)
+        layout.setSpacing(16)
 
         # -- behaviour
         behaviour = Card("Behaviour")

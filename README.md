@@ -11,9 +11,9 @@ resolution the way the NVIDIA control panel does, but per game. Build a profile 
 Valorant, another one for CS2, and the moment the game starts your screen switches over.
 When you close it, everything goes back.
 
-[![License](https://img.shields.io/badge/license-MIT-140D22)](LICENSE)
-[![Platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-140D22)](#install)
-[![Python](https://img.shields.io/badge/python-3.10%2B-A855F7)](#development)
+[![Download](https://img.shields.io/github/v/release/ImKirit/Amethyst?color=A855F7&label=download&sort=semver)](https://github.com/ImKirit/Amethyst/releases/latest)
+[![License](https://img.shields.io/badge/license-MIT-181029)](LICENSE)
+[![Platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-181029)](#install)
 
 <img src="docs/img/main-display.png" width="820" alt="Amethyst, display page with color sliders">
 
@@ -183,7 +183,19 @@ folder and Amethyst starts fresh.
 **Windows 10 or 11.** An NVIDIA card is needed for digital vibrance; everything else works on
 any GPU.
 
-Build the executable yourself:
+### 1. Download the release
+
+Grab `Amethyst.exe` from the [latest release](https://github.com/ImKirit/Amethyst/releases/latest)
+and run it. One file, no installer, nothing to set up. It updates itself from then on.
+
+Windows SmartScreen warns about it because the file is not code signed. Choose "More info",
+then "Run anyway". Every release lists the SHA256 of the exe if you want to check it first:
+
+```bash
+certutil -hashfile Amethyst.exe SHA256
+```
+
+### 2. Build it yourself
 
 ```bash
 git clone https://github.com/ImKirit/Amethyst.git
@@ -192,9 +204,9 @@ pip install -r requirements.txt
 python tools/build.py
 ```
 
-The result is `dist/Amethyst.exe`, a single file with no installer and no dependencies on the
-target machine. `python tools/build.py --folder` builds an unpacked folder instead, which
-starts noticeably faster.
+The result is `dist/Amethyst.exe`, the same single file, with no dependencies on the target
+machine. `python tools/build.py --folder` builds an unpacked folder instead, which starts
+noticeably faster.
 
 ### Updates
 

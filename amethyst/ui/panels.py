@@ -150,7 +150,7 @@ class ResolutionPanel(Card):
         line = QWidget()
         layout = QHBoxLayout(line)
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(8)
+        layout.setSpacing(10)
         self.resolution_box = QComboBox()
         self.resolution_box.setMinimumWidth(180)
         self.refresh_box = QComboBox()

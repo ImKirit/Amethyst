@@ -99,7 +99,7 @@ class MainWindow(QWidget):
         for page in (self.display_page, self.profiles_page, self.settings_page):
             holder = QWidget()
             holder_layout = QVBoxLayout(holder)
-            holder_layout.setContentsMargins(26, 18, 26, 20)
+            holder_layout.setContentsMargins(28, 20, 28, 22)
             holder_layout.addWidget(page)
             self.stack.addWidget(holder)
         body.addWidget(self.stack, 1)
@@ -147,8 +147,8 @@ class MainWindow(QWidget):
         sidebar.setObjectName("sidebar")
         sidebar.setFixedWidth(212)
         layout = QVBoxLayout(sidebar)
-        layout.setContentsMargins(16, 18, 16, 16)
-        layout.setSpacing(6)
+        layout.setContentsMargins(16, 20, 16, 18)
+        layout.setSpacing(8)
 
         brand = QHBoxLayout()
         brand.setSpacing(10)

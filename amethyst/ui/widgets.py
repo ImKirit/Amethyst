@@ -22,7 +22,7 @@ class Card(QFrame):
         self.setObjectName("cardFlat" if flat else "card")
         self._layout = QVBoxLayout(self)
         self._layout.setContentsMargins(20, 18, 20, 20)
-        self._layout.setSpacing(12)
+        self._layout.setSpacing(16)
         self.header = QHBoxLayout()
         self.header.setSpacing(8)
         if title:

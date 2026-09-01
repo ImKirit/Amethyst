@@ -138,10 +138,10 @@ class ProfilesPage(QWidget):
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
-        outer.setSpacing(12)
+        outer.setSpacing(16)
 
         head = QVBoxLayout()
-        head.setSpacing(2)
+        head.setSpacing(4)
         head.addWidget(label("Profiles", "pageTitle"))
         head.addWidget(label("A profile takes over as soon as one of its processes runs. "
                              "When none of them does, the desktop values apply again.", "pageHint"))
@@ -155,7 +155,7 @@ class ProfilesPage(QWidget):
         left = QWidget()
         left_layout = QVBoxLayout(left)
         left_layout.setContentsMargins(0, 0, 0, 0)
-        left_layout.setSpacing(8)
+        left_layout.setSpacing(11)
 
         buttons = QHBoxLayout()
         buttons.setSpacing(6)
@@ -172,7 +172,7 @@ class ProfilesPage(QWidget):
         left_layout.addWidget(self.list, 1)
 
         tools = QHBoxLayout()
-        tools.setSpacing(6)
+        tools.setSpacing(8)
         for text, tip, slot in (
             ("▲", "Move up (upper profiles win when several match)", lambda: self._move(-1)),
             ("▼", "Move down", lambda: self._move(1)),
@@ -194,15 +194,15 @@ class ProfilesPage(QWidget):
         right = QWidget()
         right_layout = QVBoxLayout(right)
         right_layout.setContentsMargins(0, 0, 0, 0)
-        right_layout.setSpacing(10)
+        right_layout.setSpacing(14)
 
         self.editor_scroll = QScrollArea()
         self.editor_scroll.setWidgetResizable(True)
         self.editor_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         editor = QWidget()
         editor_layout = QVBoxLayout(editor)
-        editor_layout.setContentsMargins(0, 0, 6, 0)
-        editor_layout.setSpacing(12)
+        editor_layout.setContentsMargins(0, 0, 8, 0)
+        editor_layout.setSpacing(16)
 
         self.header_card = Card("Profile")
         name_row = QWidget()
@@ -232,7 +232,7 @@ class ProfilesPage(QWidget):
         self.process_list.setMaximumHeight(112)
         self.process_card.add(self.process_list)
         process_buttons = QHBoxLayout()
-        process_buttons.setSpacing(6)
+        process_buttons.setSpacing(8)
         pick = QPushButton("From running programs")
         pick.setObjectName("ghost")
         pick.setCursor(Qt.PointingHandCursor)
@@ -271,7 +271,7 @@ class ProfilesPage(QWidget):
         right_layout.addWidget(self.editor_scroll, 1)
 
         actions = QHBoxLayout()
-        actions.setSpacing(8)
+        actions.setSpacing(10)
         self.test_button = QPushButton("Preview for 10 seconds")
         self.test_button.setObjectName("ghost")
         self.test_button.setCursor(Qt.PointingHandCursor)

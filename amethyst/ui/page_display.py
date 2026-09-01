@@ -32,10 +32,10 @@ class DisplayPage(QWidget):
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
-        outer.setSpacing(12)
+        outer.setSpacing(16)
 
         head = QVBoxLayout()
-        head.setSpacing(2)
+        head.setSpacing(4)
         title = label("Display", "pageTitle")
         hint = label("Color and resolution for the desktop. These values apply whenever "
                      "no game profile is active.", "pageHint")
@@ -80,8 +80,8 @@ class DisplayPage(QWidget):
         scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         content = QWidget()
         content_layout = QVBoxLayout(content)
-        content_layout.setContentsMargins(0, 0, 6, 0)
-        content_layout.setSpacing(12)
+        content_layout.setContentsMargins(0, 0, 8, 0)
+        content_layout.setSpacing(16)
 
         self.color_panel = ColorPanel("Color", "")
         self.resolution_panel = ResolutionPanel("Resolution", "")
