@@ -99,7 +99,7 @@ class MainWindow(QWidget):
         for page in (self.display_page, self.profiles_page, self.settings_page):
             holder = QWidget()
             holder_layout = QVBoxLayout(holder)
-            holder_layout.setContentsMargins(22, 16, 22, 18)
+            holder_layout.setContentsMargins(26, 18, 26, 20)
             holder_layout.addWidget(page)
             self.stack.addWidget(holder)
         body.addWidget(self.stack, 1)

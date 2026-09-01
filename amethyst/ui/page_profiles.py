@@ -180,10 +180,12 @@ class ProfilesPage(QWidget):
             ("Delete", "Remove this profile", self._delete),
         ):
             button = QPushButton(text)
-            button.setObjectName("ghost" if len(text) > 2 else "windowButton")
+            button.setObjectName("ghost")
             button.setCursor(Qt.PointingHandCursor)
             button.setToolTip(tip)
             button.clicked.connect(slot)
+            if len(text) <= 2:
+                button.setFixedWidth(46)
             tools.addWidget(button)
         left_layout.addLayout(tools)
         splitter.addWidget(left)

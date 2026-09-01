@@ -35,7 +35,7 @@ class ResolutionOverlay(QWidget):
         self.setAttribute(Qt.WA_ShowWithoutActivating, True)
         self.setCursor(Qt.SizeAllCursor)
         self.setToolTip("Drag to move. Turn this off in the Amethyst settings.")
-        self.resize(240, 34)
+        self.resize(250, 40)
 
     # -- content ------------------------------------------------------
     def show_mode(self, width: int, height: int, stretched: bool) -> None:
@@ -51,8 +51,8 @@ class ResolutionOverlay(QWidget):
         font.setWeight(QFont.DemiBold)
         self.setFont(font)
         # 27 px for the dot on the left, 16 px of air on the right
-        width = self.fontMetrics().horizontalAdvance(self._text()) + 27 + 16
-        self.resize(width, 34)
+        width = self.fontMetrics().horizontalAdvance(self._text()) + 30 + 20
+        self.resize(width, 40)
 
     def _text(self) -> str:
         kind = "Stretched" if self._stretched else "Native"
@@ -99,16 +99,16 @@ class ResolutionOverlay(QWidget):
         rect = QRectF(self.rect()).adjusted(0.5, 0.5, -0.5, -0.5)
 
         path = QPainterPath()
-        path.addRoundedRect(rect, 9, 9)
+        path.addRoundedRect(rect, 14, 14)
         painter.fillPath(path, QBrush(QColor(14, 8, 24, 224)))
         painter.setPen(QPen(QColor(theme.ACCENT if self._stretched else theme.BORDER), 1.4))
         painter.drawPath(path)
 
-        dot = QRectF(12, rect.center().y() - 3.5, 7, 7)
+        dot = QRectF(14, rect.center().y() - 4.5, 9, 9)
         painter.setPen(Qt.NoPen)
         painter.setBrush(QColor(theme.ACCENT if self._stretched else theme.TEXT_MUTED))
         painter.drawEllipse(dot)
 
         painter.setPen(QColor(theme.TEXT))
-        painter.drawText(rect.adjusted(27, 0, -10, 0), Qt.AlignVCenter | Qt.AlignLeft, self._text())
+        painter.drawText(rect.adjusted(30, 0, -12, 0), Qt.AlignVCenter | Qt.AlignLeft, self._text())
         painter.end()

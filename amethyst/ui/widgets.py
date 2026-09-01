@@ -21,8 +21,8 @@ class Card(QFrame):
         super().__init__(parent)
         self.setObjectName("cardFlat" if flat else "card")
         self._layout = QVBoxLayout(self)
-        self._layout.setContentsMargins(16, 14, 16, 16)
-        self._layout.setSpacing(10)
+        self._layout.setContentsMargins(20, 18, 20, 20)
+        self._layout.setSpacing(12)
         self.header = QHBoxLayout()
         self.header.setSpacing(8)
         if title:
@@ -68,12 +68,12 @@ class SliderRow(QWidget):
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
-        outer.setSpacing(4)
+        outer.setSpacing(6)
 
         top = QHBoxLayout()
         top.setContentsMargins(0, 0, 0, 0)
         self.title = QLabel(label)
-        self.title.setStyleSheet("font-size: 12px;")
+        self.title.setStyleSheet("font-size: 12px; font-weight: 500;")
         self.value_label = QLabel()
         self.value_label.setObjectName("valueLabel")
         self.value_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
@@ -127,15 +127,16 @@ class SliderRow(QWidget):
     def setEnabled(self, enabled: bool) -> None:  # noqa: N802 - Qt naming
         super().setEnabled(enabled)
         self.title.setStyleSheet(
-            "font-size: 12px;" if enabled else f"font-size: 12px; color: {theme.TEXT_FAINT};")
+            "font-size: 12px; font-weight: 500;" if enabled
+            else f"font-size: 12px; font-weight: 500; color: {theme.TEXT_FAINT};")
 
 
 class Toggle(QCheckBox):
     """Sliding switch: pill with a knob, drawn by hand."""
 
-    TRACK_W = 34
-    TRACK_H = 18
-    GAP = 9
+    TRACK_W = 44
+    TRACK_H = 24
+    GAP = 11
 
     def __init__(self, text: str = "", checked: bool = False, parent=None) -> None:
         super().__init__(text, parent)
@@ -164,9 +165,9 @@ class Toggle(QCheckBox):
         painter.setBrush(QBrush(color))
         painter.drawRoundedRect(track, self.TRACK_H / 2, self.TRACK_H / 2)
 
-        knob_size = self.TRACK_H - 6
-        knob_x = track.right() - knob_size - 3 if on else track.left() + 3
-        knob = QRectF(knob_x, top + 3, knob_size, knob_size)
+        knob_size = self.TRACK_H - 8
+        knob_x = track.right() - knob_size - 4 if on else track.left() + 4
+        knob = QRectF(knob_x, top + 4, knob_size, knob_size)
         painter.setPen(Qt.NoPen)
         painter.setBrush(QBrush(QColor("#F6F1FF" if on else theme.TEXT_MUTED)))
         painter.drawEllipse(knob)
@@ -196,8 +197,8 @@ class Badge(QLabel):
         self._color = color
         self.setStyleSheet(
             f"color: {color}; font-size: 11px; font-weight: 600;"
-            f" background: rgba(255,255,255,0.04); border-radius: 8px;"
-            f" padding: 3px 9px;")
+            f" background: rgba(255,255,255,0.07); border-radius: 11px;"
+            f" padding: 5px 12px;")
 
     def set_state(self, text: str, color: str) -> None:
         self.setText(text)
@@ -209,7 +210,7 @@ class IconButton(QPushButton):
         super().__init__(glyph, parent)
         self.setObjectName("windowButton")
         self.setCursor(Qt.PointingHandCursor)
-        self.setFixedSize(30, 26)
+        self.setFixedSize(34, 30)
         if tooltip:
             self.setToolTip(tooltip)
 
@@ -248,7 +249,7 @@ class ColorPreview(QWidget):
 
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
-        self.setMinimumHeight(58)
+        self.setMinimumHeight(70)
         self._brightness = 0.0
         self._contrast = 50.0
         self._gamma = 1.0
@@ -284,7 +285,7 @@ class ColorPreview(QWidget):
         painter.setRenderHint(QPainter.Antialiasing)
         rect = QRectF(self.rect()).adjusted(0.5, 0.5, -0.5, -0.5)
         path = QPainterPath()
-        path.addRoundedRect(rect, 9, 9)
+        path.addRoundedRect(rect, 13, 13)
         painter.setClipPath(path)
 
         swatches = [

@@ -186,8 +186,8 @@ any GPU.
 Build the executable yourself:
 
 ```bash
-git clone https://github.com/ImKirit/amethyst.git
-cd amethyst
+git clone https://github.com/ImKirit/Amethyst.git
+cd Amethyst
 pip install -r requirements.txt
 python tools/build.py
 ```
