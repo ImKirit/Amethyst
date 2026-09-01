@@ -185,7 +185,7 @@ class SettingsPage(QWidget):
             + ("" if caps.vibrance_ok else f" ({caps.vibrance_reason})"),
             f"Gamma ramp: {'available' if caps.gamma_ok else 'blocked'}"
             + ("" if caps.gamma_ok else f" ({caps.gamma_reason})"),
-            f"DDC/CI: {', '.join(caps.ddcci_devices) if caps.ddcci_devices else 'no answer from the monitor'}",
+            f"DDC/CI: {', '.join(caps.ddcci_devices) if caps.ddcci_devices else caps.ddcci_reason or 'no answer from the monitor'}",
             f"Data folder: {data_dir()}",
         ]
         self.diagnostics_text.setText("\n".join(lines))

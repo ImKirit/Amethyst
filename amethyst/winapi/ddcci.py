@@ -98,6 +98,24 @@ def available() -> bool:
     return dxva2 is not None
 
 
+def probe_status() -> tuple[list[MonitorControl], str]:
+    """Monitors that answer over DDC/CI, plus a reason when none of them does."""
+    if dxva2 is None:
+        return [], "dxva2.dll is missing on this system."
+    monitors = _monitor_handles()
+    if not monitors:
+        return [], "No monitor found."
+    controls = probe()
+    if controls:
+        return controls, ""
+    # The driver reports a monitor but hands out no handle: that is what happens
+    # when DDC/CI is switched off in the monitor menu, or when the cable path
+    # (adapter, KVM, docking station) does not carry the control channel.
+    return [], ("The driver hands out no control channel for this monitor. Enable DDC/CI in "
+                "the monitor menu, and connect the monitor directly instead of through an "
+                "adapter or KVM switch.")
+
+
 def probe() -> list[MonitorControl]:
     """Every monitor that answers over DDC/CI."""
     if dxva2 is None:

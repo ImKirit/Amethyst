@@ -182,8 +182,10 @@ def probe(device: str | None = None) -> GammaStatus:
     if blocker:
         return GammaStatus(
             False,
-            f"{blocker} blocks the gamma ramp system wide. "
-            "Digital vibrance and resolution still work.")
+            f"{blocker} blocks the gamma ramp system wide, for every program. "
+            "The NVIDIA control panel sets brightness, contrast and gamma through the same "
+            "Windows call, so it cannot change them either while this runs. "
+            "Digital vibrance and resolution are unaffected.")
     return GammaStatus(
         False,
         "Windows refuses access to the gamma ramp. "

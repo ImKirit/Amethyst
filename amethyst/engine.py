@@ -33,6 +33,7 @@ class Capabilities:
     vibrance_reason: str = ""
     driver: str = ""
     ddcci_devices: list[str] = field(default_factory=list)
+    ddcci_reason: str = ""
 
     @property
     def ddcci_ok(self) -> bool:
@@ -90,6 +91,7 @@ class Engine:
     # -- Capabilities -------------------------------------------------
     def _detect(self) -> Capabilities:
         status = gamma.probe()
+        controls, ddcci_reason = ddcci.probe_status()
         caps = Capabilities(
             gamma_ok=status.available,
             gamma_reason=status.reason,
@@ -97,7 +99,8 @@ class Engine:
             vibrance_ok=self.nv.available,
             vibrance_reason=self.nv.reason,
             driver=self.nv.driver,
-            ddcci_devices=[c.device for c in ddcci.probe() if c.brightness],
+            ddcci_devices=[c.device for c in controls if c.brightness],
+            ddcci_reason=ddcci_reason,
         )
         return caps
 
