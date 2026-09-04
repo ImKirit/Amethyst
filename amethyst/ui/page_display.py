@@ -84,7 +84,7 @@ class DisplayPage(QWidget):
         content_layout.setSpacing(16)
 
         self.color_panel = ColorPanel("Color", "")
-        self.resolution_panel = ResolutionPanel("Resolution", "")
+        self.resolution_panel = ResolutionPanel("Resolution", "", store=self.store)
         content_layout.addWidget(self.color_panel)
         content_layout.addWidget(self.resolution_panel)
         content_layout.addStretch(1)

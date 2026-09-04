@@ -85,10 +85,12 @@ def main(argv: list[str] | None = None) -> int:
         if desktop.color.enabled or desktop.resolution.is_set():
             engine.apply_profile(desktop)
 
-    if not (start_hidden or store.settings.start_minimized):
-        window.show()
-    elif not tray.isSystemTrayAvailable():
-        window.show()
+    # Only the autostart entry passes --tray. Starting the exe yourself always
+    # shows the window, no setting overrides that.
+    if start_hidden and tray.isSystemTrayAvailable():
+        log.info("Started by Windows, staying in the tray")
+    else:
+        window.bring_to_front()
 
     if not engine.capabilities.vibrance_ok and not engine.capabilities.gamma_ok:
         QMessageBox.information(

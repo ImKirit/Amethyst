@@ -55,7 +55,11 @@ class SettingsPage(QWidget):
         settings = self.store.settings
         self.autostart_toggle = Toggle("Start with Windows", autostart.is_enabled())
         self.autostart_toggle.toggled.connect(self._on_autostart)
-        self.minimized_toggle = Toggle("Start minimized", settings.start_minimized)
+        self.minimized_toggle = Toggle("Windows starts it into the tray",
+                                       settings.start_minimized)
+        self.minimized_toggle.setToolTip(
+            "Only applies when Windows starts Amethyst at sign-in. Starting it yourself "
+            "always opens the window.")
         self.tray_toggle = Toggle("Closing hides to the tray", settings.close_to_tray)
         self.notify_toggle = Toggle("Short notice when a profile switches", settings.notifications)
         self.enforce_toggle = Toggle("Hold the resolution while a game runs",
@@ -182,7 +186,10 @@ class SettingsPage(QWidget):
     # -- actions ------------------------------------------------------
     def _save(self, *_args) -> None:
         settings = self.store.settings
+        was_minimized = settings.start_minimized
         settings.start_minimized = self.minimized_toggle.isChecked()
+        if was_minimized != settings.start_minimized and autostart.is_enabled():
+            autostart.set_enabled(True, settings.start_minimized)
         settings.close_to_tray = self.tray_toggle.isChecked()
         settings.notifications = self.notify_toggle.isChecked()
         settings.brightness_source = self.source_box.currentData() or "auto"
@@ -209,7 +216,7 @@ class SettingsPage(QWidget):
         self.intervalChanged.emit(value)
 
     def _on_autostart(self, checked: bool) -> None:
-        ok, message = autostart.set_enabled(checked)
+        ok, message = autostart.set_enabled(checked, self.minimized_toggle.isChecked())
         self.statusMessage.emit(message)
         if not ok:
             self.autostart_toggle.blockSignals(True)

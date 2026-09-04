@@ -259,7 +259,7 @@ class ProfilesPage(QWidget):
         editor_layout.addWidget(self.target_card)
 
         self.color_panel = ColorPanel("Color")
-        self.resolution_panel = ResolutionPanel("Resolution")
+        self.resolution_panel = ResolutionPanel("Resolution", store=self.store)
         editor_layout.addWidget(self.color_panel)
         editor_layout.addWidget(self.resolution_panel)
 

@@ -139,6 +139,23 @@ def main() -> int:
     pump()
     shoot(window, 1, "main-active.png", out)
 
+    # the dialog for adding your own resolution
+    from amethyst.ui.preset_dialog import PresetDialog  # noqa: PLC0415
+
+    from amethyst.winapi import displays as _displays  # noqa: PLC0415
+
+    primary = _displays.primary_display()
+    if primary is not None:
+        preset = PresetDialog(primary.device, window)
+        preset.setStyleSheet(theme.stylesheet())
+        preset.name_edit.setText("Stretched 4:3")
+        preset.width_box.setValue(1440)
+        preset.height_box.setValue(1080)
+        pump()
+        preset.grab().save(str(out / "tour-preset.png"), "PNG")
+        print("  tour-preset.png")
+        preset.close()
+
     # the resolution badge
     from amethyst.ui.overlay import ResolutionOverlay  # noqa: PLC0415
 

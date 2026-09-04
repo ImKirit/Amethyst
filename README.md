@@ -63,6 +63,10 @@ they never survive a reboot.
   panel: -50 to +50, 0 to 100, 0.30 to 2.80, 50 to 150 percent.
 - **Resolution and refresh rate**, custom modes included. Anything off the native aspect ratio
   is labelled **stretched**.
+- **Create preset** for a resolution the driver does not list. Type width, height and refresh
+  rate, and Amethyst asks the driver whether it would accept it before saving.
+
+  <img src="docs/img/tour-preset.png" width="420" alt="Create preset dialog">
 
 ### Automate
 
@@ -83,6 +87,9 @@ they never survive a reboot.
 - **An optional badge** showing whether you are on a stretched or a native mode, draggable
   anywhere.
 - **Updates itself** from the releases of this repository.
+- **A normal window.** Minimize, maximize and close where you expect them, drag it against the
+  top edge to maximize or against a side to snap it to half the screen, drag the edges to
+  resize. Its size and position come back the next time you open it.
 
 ## Screens
 

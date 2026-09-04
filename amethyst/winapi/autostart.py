@@ -11,16 +11,21 @@ from .. import APP_NAME
 RUN_KEY = r"Software\Microsoft\Windows\CurrentVersion\Run"
 
 
-def _command() -> str:
-    """Launch command for the current setup (script or packaged exe)."""
+def _command(to_tray: bool = True) -> str:
+    """Launch command for the current setup (script or packaged exe).
+
+    ``--tray`` tells Amethyst that Windows started it, which is the only case
+    where it may stay hidden.
+    """
+    suffix = " --tray" if to_tray else ""
     if getattr(sys, "frozen", False):
-        return f'"{sys.executable}" --tray'
+        return f'"{sys.executable}"{suffix}'
     launcher = Path(sys.executable)
     pythonw = launcher.with_name("pythonw.exe")
     if pythonw.exists():
         launcher = pythonw
     root = Path(__file__).resolve().parents[2]
-    return f'"{launcher}" -m amethyst --tray'.replace("-m amethyst", f'"{root}\\run.pyw"')
+    return f'"{launcher}" "{root}\\run.pyw"{suffix}'
 
 
 def is_enabled() -> bool:
@@ -37,14 +42,14 @@ def is_enabled() -> bool:
         winreg.CloseKey(key)
 
 
-def set_enabled(enabled: bool) -> tuple[bool, str]:
+def set_enabled(enabled: bool, to_tray: bool = True) -> tuple[bool, str]:
     try:
         key = winreg.CreateKeyEx(winreg.HKEY_CURRENT_USER, RUN_KEY, 0, winreg.KEY_SET_VALUE)
     except OSError as exc:
         return False, str(exc)
     try:
         if enabled:
-            winreg.SetValueEx(key, APP_NAME, 0, winreg.REG_SZ, _command())
+            winreg.SetValueEx(key, APP_NAME, 0, winreg.REG_SZ, _command(to_tray))
             return True, "Autostart enabled."
         try:
             winreg.DeleteValue(key, APP_NAME)

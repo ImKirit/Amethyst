@@ -139,12 +139,14 @@ class ResolutionPanel(Card):
 
     changed = Signal()
 
-    def __init__(self, title: str = "Resolution", hint: str = "", parent=None) -> None:
+    def __init__(self, title: str = "Resolution", hint: str = "", store=None,
+                 parent=None) -> None:
         super().__init__(title, hint, parent=parent)
         self.toggle = Toggle("on", False)
         self.toggle.setToolTip("Whether this profile switches the resolution")
         self.add_header_widget(self.toggle)
 
+        self.store = store
         self._display: Display | None = None
 
         line = QWidget()
@@ -169,6 +171,19 @@ class ResolutionPanel(Card):
         status_layout.addWidget(self.aspect_badge)
         status_layout.addWidget(self.native_label)
         status_layout.addStretch(1)
+
+        self.create_button = QPushButton("Create preset")
+        self.create_button.setObjectName("ghost")
+        self.create_button.setCursor(Qt.PointingHandCursor)
+        self.create_button.setToolTip("Add a resolution of your own, for example a stretched one")
+        self.create_button.clicked.connect(self._create_preset)
+        self.delete_button = QPushButton("Delete preset")
+        self.delete_button.setObjectName("ghost")
+        self.delete_button.setCursor(Qt.PointingHandCursor)
+        self.delete_button.clicked.connect(self._delete_preset)
+        self.delete_button.hide()
+        status_layout.addWidget(self.delete_button)
+        status_layout.addWidget(self.create_button)
         self.add(status)
 
         self.stretch_hint = label(
@@ -192,6 +207,13 @@ class ResolutionPanel(Card):
         current = self.values()
         self.resolution_box.blockSignals(True)
         self.resolution_box.clear()
+
+        # own presets first, they are the reason someone opens this list
+        if self.store is not None and display is not None:
+            for mode in self.store.modes_for(display.device):
+                self.resolution_box.addItem(f"{mode.label()}   own",
+                                            (mode.width, mode.height, mode.refresh))
+
         if display is not None:
             native = display.native_aspect()
             for width, height in display.resolutions():
@@ -199,7 +221,7 @@ class ResolutionPanel(Card):
                 tag = ""
                 if abs(aspect - native) > 0.02:
                     tag = "  stretched" if (width, height) in STRETCHED_HINTS else "  other ratio"
-                self.resolution_box.addItem(f"{width} x {height}{tag}", (width, height))
+                self.resolution_box.addItem(f"{width} x {height}{tag}", (width, height, 0))
             self.native_label.setText(
                 f"native {display.current.width} x {display.current.height} "
                 f"@ {display.current.refresh} Hz")
@@ -209,15 +231,52 @@ class ResolutionPanel(Card):
         else:
             self._on_resolution(self.resolution_box.currentIndex())
 
+    def _create_preset(self) -> None:
+        from .preset_dialog import PresetDialog          # noqa: PLC0415 - avoids a cycle
+
+        if self.store is None or self._display is None:
+            return
+        dialog = PresetDialog(self._display.device, self.window())
+        if dialog.exec() != PresetDialog.Accepted:
+            return
+        preset = dialog.preset()
+        self.store.add_custom_mode(preset)
+        self.set_display(self._display)
+        self.select(preset.width, preset.height, preset.refresh)
+        self.toggle.setChecked(True)
+        self.changed.emit()
+
+    def _delete_preset(self) -> None:
+        if self.store is None or self._display is None:
+            return
+        data = self.resolution_box.currentData()
+        if not data:
+            return
+        width, height, refresh = data
+        for mode in self.store.modes_for(self._display.device):
+            if (mode.width, mode.height, mode.refresh) == (width, height, refresh):
+                self.store.remove_custom_mode(mode)
+                break
+        self.set_display(self._display)
+        self.changed.emit()
+
     def _on_resolution(self, index: int) -> None:
         data = self.resolution_box.itemData(index)
         self.refresh_box.blockSignals(True)
         self.refresh_box.clear()
+        own = bool(data) and data[2] != 0
+        self.delete_button.setVisible(own)
         if data and self._display:
-            width, height = data
+            width, height, own_rate = data
             rates = self._display.refresh_rates(width, height)
+            if own_rate and own_rate not in rates:
+                rates = sorted({own_rate, *rates}, reverse=True)
             for rate in rates:
                 self.refresh_box.addItem(f"{rate} Hz", rate)
+            if own_rate:
+                position = self.refresh_box.findData(own_rate)
+                if position >= 0:
+                    self.refresh_box.setCurrentIndex(position)
             native = self._display.native_aspect()
             aspect = width / height if height else 0
             if abs(aspect - native) > 0.02:
@@ -230,10 +289,19 @@ class ResolutionPanel(Card):
         self.changed.emit()
 
     def select(self, width: int, height: int, refresh: int) -> None:
+        exact = -1
+        fallback = -1
         for index in range(self.resolution_box.count()):
-            if self.resolution_box.itemData(index) == (width, height):
-                self.resolution_box.setCurrentIndex(index)
-                break
+            data = self.resolution_box.itemData(index)
+            if not data or (data[0], data[1]) != (width, height):
+                continue
+            if data[2] == refresh and exact < 0:
+                exact = index
+            if fallback < 0:
+                fallback = index
+        chosen = exact if exact >= 0 else fallback
+        if chosen >= 0:
+            self.resolution_box.setCurrentIndex(chosen)
         for index in range(self.refresh_box.count()):
             if self.refresh_box.itemData(index) == refresh:
                 self.refresh_box.setCurrentIndex(index)
@@ -244,7 +312,7 @@ class ResolutionPanel(Card):
         rate = self.refresh_box.currentData()
         if not data:
             return ResolutionSettings(enabled=self.toggle.isChecked())
-        width, height = data
+        width, height = data[0], data[1]
         return ResolutionSettings(enabled=self.toggle.isChecked(), width=width, height=height,
                                   refresh=int(rate or 0))
 

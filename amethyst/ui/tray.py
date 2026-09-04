@@ -52,9 +52,7 @@ class Tray(QSystemTrayIcon):
         self.menu.addAction(quit_action)
 
     def _show_window(self) -> None:
-        self.window.showNormal()
-        self.window.raise_()
-        self.window.activateWindow()
+        self.window.bring_to_front()
 
     def _on_activated(self, reason) -> None:
         if reason in (QSystemTrayIcon.Trigger, QSystemTrayIcon.DoubleClick):

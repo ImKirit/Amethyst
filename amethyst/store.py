@@ -101,6 +101,25 @@ class Store:
         self.profiles.insert(target, self.profiles.pop(index))
         self.save_profiles()
 
+    # -- Custom resolutions -------------------------------------------
+    def add_custom_mode(self, mode) -> None:
+        """Keep one entry per size, the newest name wins."""
+        self.settings.custom_modes = [
+            m for m in self.settings.custom_modes
+            if not (m.key() == mode.key() and m.device == mode.device)]
+        self.settings.custom_modes.append(mode)
+        self.save_settings()
+
+    def remove_custom_mode(self, mode) -> None:
+        self.settings.custom_modes = [
+            m for m in self.settings.custom_modes
+            if not (m.key() == mode.key() and m.device == mode.device)]
+        self.save_settings()
+
+    def modes_for(self, device: str) -> list:
+        return [m for m in self.settings.custom_modes
+                if m.device in (device, "primary") or device == "primary"]
+
     # -- Backup of the original state ---------------------------------
     def read_baseline(self) -> dict[str, Any]:
         data = _read_json(baseline_file(), {})

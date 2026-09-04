@@ -81,6 +81,25 @@ class ResolutionSettings:
 
 
 @dataclass
+class CustomMode:
+    """A resolution the user added by hand, on top of what the driver lists."""
+
+    name: str = ""
+    width: int = 0
+    height: int = 0
+    refresh: int = 0
+    device: str = "primary"
+
+    def label(self) -> str:
+        rate = f" @ {self.refresh} Hz" if self.refresh else ""
+        size = f"{self.width} x {self.height}{rate}"
+        return f"{self.name}  ({size})" if self.name else size
+
+    def key(self) -> tuple[int, int, int]:
+        return (self.width, self.height, self.refresh)
+
+
+@dataclass
 class Profile:
     """A game profile: colors, resolution and the processes that trigger it."""
 
@@ -151,6 +170,9 @@ class AppSettings:
     overlay_x: int = -1                # -1 means: top left corner of the target display
     overlay_y: int = -1
     check_updates: bool = True
+    window_geometry: list[int] = field(default_factory=list)   # x, y, width, height
+    window_maximized: bool = False
+    custom_modes: list[CustomMode] = field(default_factory=list)
     desktop: Profile = field(default_factory=lambda: Profile(
         id="desktop", name="Desktop", icon="🖥️", processes=[]))
 
@@ -164,10 +186,15 @@ class AppSettings:
         settings = AppSettings()
         for key in ("poll_seconds", "start_minimized", "close_to_tray", "notifications",
                     "apply_desktop_on_start", "brightness_source", "enforce_resolution",
-                    "overlay_enabled", "overlay_x", "overlay_y", "check_updates"):
+                    "overlay_enabled", "overlay_x", "overlay_y", "check_updates",
+                    "window_geometry", "window_maximized"):
             if key in data:
                 setattr(settings, key, data[key])
         settings.poll_seconds = max(0.5, min(30.0, float(settings.poll_seconds)))
+        settings.custom_modes = [
+            CustomMode(**{k: v for k, v in entry.items()
+                          if k in CustomMode.__dataclass_fields__})
+            for entry in data.get("custom_modes", []) if isinstance(entry, dict)]
         if isinstance(data.get("desktop"), dict):
             settings.desktop = Profile.from_dict(data["desktop"])
             settings.desktop.id = "desktop"

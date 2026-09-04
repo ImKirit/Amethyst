@@ -42,11 +42,19 @@ def stylesheet() -> str:
         border: 1px solid {BORDER};
         border-radius: {RADIUS}px;
     }}
+    QWidget#root[maximized="true"] {{
+        border-radius: 0px;
+        border: none;
+    }}
+    QWidget#titleBar {{
+        background: transparent;
+        border-top-left-radius: {RADIUS}px;
+        border-top-right-radius: {RADIUS}px;
+    }}
 
     QWidget#sidebar {{
         background: {SURFACE};
         border-right: 1px solid {BORDER_SOFT};
-        border-top-left-radius: {RADIUS}px;
         border-bottom-left-radius: {RADIUS}px;
     }}
 
