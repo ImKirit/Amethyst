@@ -10,8 +10,12 @@ Amethyst sets digital vibrance, brightness, contrast, gamma and resolution the w
 control panel does, but per game. Build a profile for Valorant, another one for CS2, and the
 moment the game starts your screen switches over. When you close it, everything goes back.
 
-[![Download](https://img.shields.io/github/v/release/ImKirit/Amethyst?color=A855F7&label=download&sort=semver)](https://github.com/ImKirit/Amethyst/releases/latest)
+[![Website](https://img.shields.io/badge/website-imkirit.dev%2Famethyst-A855F7)](https://imkirit.dev/amethyst)
+[![Download](https://img.shields.io/github/v/release/ImKirit/Amethyst?color=181029&label=download&sort=semver)](https://github.com/ImKirit/Amethyst/releases/latest)
 [![Platform](https://img.shields.io/badge/platform-Windows%2010%20%7C%2011-181029)](#install)
+
+**[imkirit.dev/amethyst](https://imkirit.dev/amethyst)** shows what it does, with sliders you
+can move yourself, and always links the newest build.
 
 <img src="docs/img/main-display.png" width="820" alt="Amethyst, display page with color sliders">
 
