@@ -2,7 +2,7 @@
 
 APP_NAME = "Amethyst"
 APP_ID = "amethyst"
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 AUTHOR = "ImKirit"
 REPO = "ImKirit/Amethyst"          # owner/name, used for update checks
 REPO_URL = f"https://github.com/{REPO}"
