@@ -136,6 +136,10 @@ class ProfilesPage(QWidget):
         self._save_timer.setInterval(350)
         self._save_timer.timeout.connect(self._save_current)
 
+        self._test_left = 0
+        self._test_timer = QTimer(self)
+        self._test_timer.timeout.connect(self._tick_test)
+
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
         outer.setSpacing(16)
@@ -169,6 +173,8 @@ class ProfilesPage(QWidget):
         self.list = QListWidget()
         self.list.setSpacing(0)
         self.list.currentRowChanged.connect(self._on_selection)
+        self.list.itemDoubleClicked.connect(lambda _item: self._apply_now())
+        self.list.setToolTip("Double click a profile to apply it right away")
         left_layout.addWidget(self.list, 1)
 
         tools = QHBoxLayout()
@@ -513,8 +519,20 @@ class ProfilesPage(QWidget):
             return
         self._save_current()
         notes = self.engine.apply_profile(self._current)
-        self.statusMessage.emit(notes[0] if notes else f"{self._current.name} runs for 10 seconds")
-        QTimer.singleShot(10_000, self._end_test)
+        if notes:
+            self.statusMessage.emit(notes[0])
+        self._test_left = 10
+        self._test_timer.start(1000)
+        self._tick_test()
+
+    def _tick_test(self) -> None:
+        if self._test_left <= 0:
+            self._test_timer.stop()
+            self.test_button.setText("Preview for 10 seconds")
+            self._end_test()
+            return
+        self.test_button.setText(f"Back to normal in {self._test_left} s")
+        self._test_left -= 1
 
     def _end_test(self) -> None:
         if self.engine.active is None:

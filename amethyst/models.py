@@ -172,6 +172,7 @@ class AppSettings:
     check_updates: bool = True
     window_geometry: list[int] = field(default_factory=list)   # x, y, width, height
     window_maximized: bool = False
+    tray_hint_shown: bool = False
     custom_modes: list[CustomMode] = field(default_factory=list)
     desktop: Profile = field(default_factory=lambda: Profile(
         id="desktop", name="Desktop", icon="🖥️", processes=[]))
@@ -187,7 +188,7 @@ class AppSettings:
         for key in ("poll_seconds", "start_minimized", "close_to_tray", "notifications",
                     "apply_desktop_on_start", "brightness_source", "enforce_resolution",
                     "overlay_enabled", "overlay_x", "overlay_y", "check_updates",
-                    "window_geometry", "window_maximized"):
+                    "window_geometry", "window_maximized", "tray_hint_shown"):
             if key in data:
                 setattr(settings, key, data[key])
         settings.poll_seconds = max(0.5, min(30.0, float(settings.poll_seconds)))

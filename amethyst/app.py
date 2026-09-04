@@ -65,6 +65,7 @@ def main(argv: list[str] | None = None) -> int:
 
     tray = Tray(window, engine)
     tray.show()
+    window.tray = tray
 
     if store.settings.notifications:
         def announce(profile) -> None:

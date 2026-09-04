@@ -36,6 +36,7 @@ class MainWindow(QWidget):
         self.engine = engine
         self.store = engine.store
         self._force_quit = False
+        self.tray = None                 # set by the app once the tray exists
 
         self.setWindowTitle(APP_NAME)
         self.setWindowIcon(app_icon())
@@ -302,6 +303,14 @@ class MainWindow(QWidget):
             event.ignore()
             self.hide()
             self.flash("")
+            # Say it once: closing does not quit, and profiles keep switching.
+            if not self.store.settings.tray_hint_shown and self.tray is not None:
+                self.tray.notify(
+                    APP_NAME,
+                    "Still running in the tray, so your profiles keep switching. "
+                    "Quit from the tray menu.")
+                self.store.settings.tray_hint_shown = True
+                self.store.save_settings()
             return
         self.watch_timer.stop()
         self.enforce_timer.stop()
