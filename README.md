@@ -77,7 +77,7 @@ they never survive a reboot.
 - **Process triggers.** A profile lists the executables that activate it, several per profile
   if a game ships more than one.
 - **The resolution stays put.** Games set the display mode themselves in full screen, and
-  Windows restores it on alt tab. Amethyst checks four times a second and puts your profile
+  Windows restores it on alt tab. Amethyst checks every 0.7 seconds and puts your profile
   resolution back.
 - **Fifteen templates**, from Valorant and CS2 to Tarkov and GTA V.
 - **Tray and autostart.** Closing keeps it running, the tray menu applies any profile by hand.
